@@ -180,6 +180,19 @@ p{margin:0}
 .opcion--fallada .opcion__texto{text-decoration:line-through;text-decoration-thickness:3px}
 .opcion--fallada::after{content:"Tu respuesta";flex:0 0 100%;padding-left:48px;font-family:var(--f-mano);font-weight:700;font-size:1.3rem;line-height:1}
 .faltan{text-align:center;font-weight:600;color:var(--suave);margin:0 0 12px}
+/* Respuestas, opciones y campos: tarjetas crema que destacan en las dos capas */
+.banda--naranja{--control-borde:var(--marron)}
+.banda--marron{--control-borde:var(--crema)}
+.banda .opcion,.banda .chip,.banda .campo{background:var(--crema);color:var(--marron);border-color:var(--control-borde)}
+.banda .opcion{box-shadow:0 3px 0 rgba(26,18,16,.3)}
+.banda .opcion__letra{background:var(--marron);color:var(--crema);border-color:var(--marron)}
+.banda .opcion[aria-pressed="true"],.banda .chip.activo{background:var(--btn-fondo);color:var(--btn-texto);border-color:var(--btn-fondo)}
+.banda .opcion[aria-pressed="true"] .opcion__letra{background:var(--btn-texto);color:var(--btn-fondo);border-color:var(--btn-texto)}
+.banda .opcion--correcta{border-color:var(--marron)}
+.banda--marron .opcion--correcta{border-color:var(--naranja);box-shadow:0 0 0 2px var(--naranja)}
+.banda .campo::placeholder{color:#6B5A4A;opacity:1}
+.banda .campo:focus{border-color:var(--naranja);box-shadow:0 0 0 2px var(--naranja)}
+
 
 /* Capas */
 .capa{border-left:4px solid var(--acento);padding:4px 0 4px 18px;margin:34px 0 22px;scroll-margin-top:84px;animation:aparecer .45s ease-out}
@@ -678,8 +691,8 @@ p{margin:0}
     videoFran: "",
     // [PENDIENTE] Fotograma de la peli de Óscar (imagen incrustada o enlace a una imagen)
     fotogramaOscar: "",
-    // [PENDIENTE] Enlace de la publicación de Skool "✍️ Mi primera crítica de verdad"
-    linkCriticaSkool: "",
+    // Enlace de la publicación de Skool "✍️ Mi primera crítica de verdad"
+    linkCriticaSkool: "https://www.skool.com/academia-de-cine-3282/mi-primera-critica-de-verdad?p=32f3a6fd",
     // Enlace de la comunidad en Skool
     linkComunidad: "https://www.skool.com/academia-de-cine-3282"
   };
@@ -1454,6 +1467,11 @@ p{margin:0}
   // Hueco del vídeo de Fran
   document.getElementById("hueco-fran").innerHTML =
     videoPropioHtml(CONFIG.videoFran, "Fran", "[PENDIENTE: enlace del vídeo oculto de Fran]");
+  // Mientras No esté el vídeo de Fran, su bloque No sale (así nadie ve un hueco vacío)
+  if (!CONFIG.videoFran) {
+    var bloqueFran = document.querySelector(".fran");
+    if (bloqueFran) bloqueFran.hidden = true;
+  }
 
   // La carta que explica Fran: la 3, la de la ironía dramática
   (function () {
@@ -1801,7 +1819,7 @@ p{margin:0}
      ========================================================= */
   // Versión de la app. Cámbiala (1.1, 1.2…) cuando subas algo importante:
   // así el móvil renueva también la copia guardada para cuando No hay internet.
-  var APP_VERSION = "1.0";
+  var APP_VERSION = "1.1";
   document.getElementById("version-app").textContent = APP_VERSION;
 
   var UA = navigator.userAgent || "";
