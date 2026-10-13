@@ -133,6 +133,8 @@ p{margin:0}
 .parte{margin:0 0 30px}
 .parte__num{display:inline-block;font-family:var(--f-mano);font-weight:700;font-size:1.8rem;line-height:1;color:var(--acento);transform:rotate(-2deg);margin:0 0 6px}
 .parte__titulo{font-family:var(--f-titulo);font-weight:900;font-size:clamp(2.5rem, 11vw, 4.2rem);line-height:1;letter-spacing:-.02em;margin:0 0 18px}
+.parte__titulo--largo{font-size:clamp(2rem, 8.6vw, 3.4rem);line-height:1.05}
+#hueco-leccion{margin:0 0 26px}
 
 /* ---------- Escenas ---------- */
 .escena{border-top:2px dashed var(--linea);padding-top:30px}
@@ -343,7 +345,7 @@ p{margin:0}
   <p class="progreso__texto" id="progreso-texto">Lo que No viste</p>
 </div>
 
-<!-- ================= PORTADA (la que enseña Óscar en directo) ================= -->
+<!-- ================= PORTADA (la que enseña Óscar en la masterclass) ================= -->
 <header class="banda banda--marron hero" id="inicio" data-etiqueta="Lo que No viste">
   <div class="contenedor">
     <div class="proyeccion">
@@ -415,7 +417,7 @@ p{margin:0}
       </svg>
     </div>
     <div class="hero__izq">
-      <p class="hero__regalo">🎁 Tu regalo por entrar en directo</p>
+      <p class="hero__regalo">🎁 Tu regalo por ser de Más Que Cine</p>
       <p class="hero__valor">Valorado en $35</p>
       <p class="hero__firma">de Óscar Gómez</p>
       <h1 class="hero__titulo">Lo que<br><span class="circulo">No<svg class="trazo" viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M58 6C30 2 5 12 4 30c-1 17 22 26 48 25 26-1 44-12 44-27C96 13 79 4 52 6 37 7 25 11 19 17"/></svg></span> viste</h1>
@@ -618,7 +620,7 @@ p{margin:0}
 
       <button type="submit" class="boton boton--grande boton--ancho">Ver mi crítica →</button>
     </form>
-    <button type="button" class="enlace-pequeno" id="escribir-luego" data-desbloquear="cierre">Prefiero escribirla luego →</button>
+    <button type="button" class="enlace-pequeno" id="escribir-luego" data-desbloquear="leccion">Prefiero escribirla luego →</button>
 
     <div class="resultado-critica" id="resultado-critica" hidden>
       <h3 class="subtitulo" style="margin-top:40px">Tu crítica de <span id="r-peli"></span></h3>
@@ -634,6 +636,27 @@ p{margin:0}
       <div class="botones">
         <button type="button" class="boton boton--contorno boton--ancho" id="otra-critica">✍️ Escribir otra</button>
       </div>
+    </div>
+  </div>
+</section>
+
+<div class="tira" aria-hidden="true" data-tira-de="leccion"></div>
+
+<!-- ================= EXTRA · LECCIÓN EXCLUSIVA DE ÓSCAR =================
+     Siempre en naranja (data-capa-fija): así el cierre y el pie conservan sus colores. -->
+<section class="banda banda--naranja" id="leccion" data-capa-fija data-etiqueta="Extra · Lección exclusiva de Óscar">
+  <div class="contenedor">
+    <header class="parte">
+      <p class="parte__num">Extra</p>
+      <h2 class="parte__titulo parte__titulo--largo">🎬 Lección exclusiva de Óscar: romper la cuarta pared</h2>
+    </header>
+    <p class="bloque bloque--grande">Esto No lo vas a encontrar en ningún otro sitio de la comunidad.</p>
+    <p class="bloque">Te cuento qué pasa cuando un personaje te mira a ti, directamente a cámara, y por qué te hace sentir parte de la peli.</p>
+    <div id="hueco-leccion"></div>
+    <p class="bloque">La peli de la que te hablo es <em>Todo en un día</em> (1986), de John Hughes.</p>
+    <p class="bloque">Si te apetece verla entera, búscala en una plataforma legal… y fíjate en cada vez que Ferris te mira.</p>
+    <div class="botones">
+      <button type="button" class="boton boton--grande boton--ancho" data-desbloquear="cierre">¿Y ahora qué? →</button>
     </div>
   </div>
 </section>
@@ -687,8 +710,11 @@ p{margin:0}
     escenaOscarLista: false,
     // [PENDIENTE] ID del vídeo de Óscar en YouTube (oculto): lo que va después de "watch?v="
     videoOscar: "",
-    // [PENDIENTE] ID del vídeo de Fran en YouTube (oculto)
-    videoFran: "",
+    // ID del vídeo de Fran en YouTube (oculto): explica la carta 3, la de la ironía dramática
+    videoFran: "DXiLg__nIIs",
+    // ID del vídeo de la lección exclusiva de Óscar (oculto): romper la cuarta pared.
+    // Si se deja vacío, la sección de la lección No sale.
+    videoLeccion: "2pHdxFy1s14",
     // [PENDIENTE] Fotograma de la peli de Óscar (imagen incrustada o enlace a una imagen)
     fotogramaOscar: "",
     // Enlace de la publicación de Skool "✍️ Mi primera crítica de verdad"
@@ -1014,9 +1040,15 @@ p{margin:0}
     if (!ALMACEN) return;
     try { ALMACEN.removeItem(CLAVE_AVANCE); } catch (err) { /* Nada que hacer */ }
   }
-  function videoPropioHtml(id, quien, pendiente) {
+  // Vídeos propios (Fran, Óscar): igual que los clips, con aviso si No se ven y botón para abrirlos en YouTube
+  function videoPropioHtml(id, quien, pendiente, idIframe) {
     if (id) {
-      return '<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/' + id + '?rel=0&playsinline=1&hl=es" title="Vídeo de ' + quien + '" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe><div class="video__sinred"><p class="mano">Sin conexión</p><p>Los clips necesitan internet. En cuanto vuelvas a tener conexión, aparecerán aquí.</p></div></div>';
+      return '<div class="video">' +
+          '<iframe data-clip' + (idIframe ? ' id="' + idIframe + '"' : "") + ' src="https://www.youtube-nocookie.com/embed/' + id + '?rel=0&playsinline=1&enablejsapi=1&hl=es" title="Vídeo de ' + quien + '" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>' +
+          '<div class="video__error" hidden><p class="mano">Vaya…</p><p>Este vídeo No se puede ver aquí dentro. Ábrelo en YouTube con el botón de abajo 👇</p></div>' +
+          '<div class="video__sinred"><p class="mano">Sin conexión</p><p>Los vídeos necesitan internet. En cuanto vuelvas a tener conexión, aparecerán aquí.</p></div>' +
+        "</div>" +
+        '<a class="boton boton--contorno boton--ancho" data-abrir-yt href="https://www.youtube.com/watch?v=' + id + '" target="_blank" rel="noopener">¿No se ve? Ábrelo en YouTube</a>';
     }
     return '<div class="video video--pronto"><div class="pronto">' + CLAQUETA +
       '<p class="pronto__titulo">Vídeo de ' + quien + ':</p><p class="pronto__mano">próximamente</p></div></div>' +
@@ -1053,7 +1085,7 @@ p{margin:0}
   // Las capas de color siguen intercaladas aunque se esconda una
   var turno = 0;
   document.querySelectorAll(".banda").forEach(function (b) {
-    if (b.hidden) return;
+    if (b.hidden || b.hasAttribute("data-capa-fija")) return;
     b.classList.remove("banda--marron", "banda--naranja");
     b.classList.add(turno % 2 === 0 ? "banda--marron" : "banda--naranja");
     turno++;
@@ -1466,12 +1498,25 @@ p{margin:0}
 
   // Hueco del vídeo de Fran
   document.getElementById("hueco-fran").innerHTML =
-    videoPropioHtml(CONFIG.videoFran, "Fran", "[PENDIENTE: enlace del vídeo oculto de Fran]");
+    videoPropioHtml(CONFIG.videoFran, "Fran", "[PENDIENTE: enlace del vídeo oculto de Fran]", "yt-fran");
   // Mientras No esté el vídeo de Fran, su bloque No sale (así nadie ve un hueco vacío)
   if (!CONFIG.videoFran) {
     var bloqueFran = document.querySelector(".fran");
     if (bloqueFran) bloqueFran.hidden = true;
   }
+
+  // Extra: la lección exclusiva de Óscar (romper la cuarta pared). Sin vídeo, la sección No sale.
+  var HAY_LECCION = !!CONFIG.videoLeccion;
+  if (HAY_LECCION) {
+    document.getElementById("hueco-leccion").innerHTML =
+      videoPropioHtml(CONFIG.videoLeccion, "Óscar: romper la cuarta pared", "", "yt-leccion");
+  } else {
+    document.getElementById("leccion").hidden = true;
+    document.querySelector('[data-tira-de="leccion"]').hidden = true;
+  }
+  // Después de la crítica viene la lección (o el cierre, si No hay lección)
+  var TRAS_CRITICA = HAY_LECCION ? "leccion" : "cierre";
+  document.getElementById("escribir-luego").setAttribute("data-desbloquear", TRAS_CRITICA);
 
   // La carta que explica Fran: la 3, la de la ironía dramática
   (function () {
@@ -1635,7 +1680,7 @@ p{margin:0}
     document.getElementById("r-peli").textContent = peli;
     document.getElementById("copiado").textContent = "";
     resultadoCritica.hidden = false;
-    desbloquear("cierre", { scroll: false });
+    desbloquear(TRAS_CRITICA, { scroll: false });
     irA(resultadoCritica);
   });
 
@@ -1694,9 +1739,10 @@ p{margin:0}
   /* =========================================================
      11. Desbloqueo sección a sección + barra de progreso
      ========================================================= */
-  // Orden: portada → intro → escenas → cartas → crítica → cierre (con el pie)
-  var PASOS = ["inicio", "intro"].concat(HUECOS.slice(0, TOTAL)).concat(["parte2", "parte3", "cierre"]);
-  var ETIQUETAS_PASO = { inicio: "Portada", intro: "Antes de empezar", parte2: "Las cartas", parte3: "Tu crítica", cierre: "El final" };
+  // Orden: portada → intro → escenas → cartas → crítica → lección de Óscar → cierre (con el pie)
+  var PASOS = ["inicio", "intro"].concat(HUECOS.slice(0, TOTAL)).concat(["parte2", "parte3"])
+    .concat(HAY_LECCION ? ["leccion"] : []).concat(["cierre"]);
+  var ETIQUETAS_PASO = { inicio: "Portada", intro: "Antes de empezar", parte2: "Las cartas", parte3: "Tu crítica", leccion: "La lección de Óscar", cierre: "El final" };
   ESCENAS.forEach(function (e, i) {
     ETIQUETAS_PASO[HUECOS[i]] = "Escena " + (i + 1) + ": " + quitarEtiquetas(e.etiquetaBarra || e.peli);
   });
@@ -1764,6 +1810,8 @@ p{margin:0}
 
   // Si la persona ya había avanzado (y el navegador lo guardó), se lo devolvemos
   AVANCE.desbloqueadas = AVANCE.desbloqueadas.filter(function (id) { return PASOS.indexOf(id) !== -1; });
+  // Quien terminó la versión 1.1 todavía No ha visto la lección: "Seguir donde lo dejé" le lleva a ella
+  var LECCION_NUEVA = HAY_LECCION && AVANCE.desbloqueadas.indexOf("cierre") !== -1 && AVANCE.desbloqueadas.indexOf("leccion") === -1;
   var hastaDonde = 0;
   AVANCE.desbloqueadas.forEach(function (id) { hastaDonde = Math.max(hastaDonde, PASOS.indexOf(id)); });
   if (hastaDonde > 0) {
@@ -1775,7 +1823,7 @@ p{margin:0}
       try { raiz._restaurar(est); } catch (err) { /* Si algo falla, esa escena empieza de cero */ }
     });
     botonEmpezar.textContent = "Seguir donde lo dejé →";
-    botonEmpezar.setAttribute("data-desbloquear", PASOS[hastaDonde]);
+    botonEmpezar.setAttribute("data-desbloquear", LECCION_NUEVA ? "leccion" : PASOS[hastaDonde]);
   }
   actualizarBarra();
 
@@ -1819,7 +1867,7 @@ p{margin:0}
      ========================================================= */
   // Versión de la app. Cámbiala (1.1, 1.2…) cuando subas algo importante:
   // así el móvil renueva también la copia guardada para cuando No hay internet.
-  var APP_VERSION = "1.1";
+  var APP_VERSION = "1.2";
   document.getElementById("version-app").textContent = APP_VERSION;
 
   var UA = navigator.userAgent || "";
