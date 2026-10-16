@@ -26,12 +26,15 @@
    LO QUE NO VISTE · Más Que Cine
    Colores: marrón #1A1210 y naranja #F4963E (sacado del logo).
    Regla: en las capas marrones, texto crema.
-          En las capas naranjas, texto marrón. Nunca crema sobre naranja.
+          En las capas claras (naranja pálido #F5ECD9, como el resto de páginas de Más Que Cine):
+          texto marrón y detalles en naranja oscuro (#A84C0C), que se lee bien sobre el fondo claro.
    ========================================================= */
 :root{
   --marron:#1A1210;
   --naranja:#F4963E;
   --naranja-claro:#F9B761;
+  --naranja-palido:#F5ECD9;
+  --naranja-oscuro:#A84C0C;
   --crema:#F5ECD9;
   --f-titulo:"Fraunces", Georgia, "Times New Roman", serif;
   --f-texto:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -51,7 +54,7 @@ p{margin:0}
 /* ---------- Capas de fondo (bandas) ---------- */
 .banda{position:relative;background:var(--fondo);color:var(--texto);padding:56px 16px 64px;scroll-margin-top:70px}
 .banda--marron{--fondo:var(--marron);--texto:var(--crema);--acento:var(--naranja-claro);--suave:#B9B0A1;--linea:rgba(245,236,217,.26);--superficie:rgba(245,236,217,.06);--btn-fondo:var(--naranja);--btn-texto:var(--marron);--resalte:rgba(244,150,62,.42)}
-.banda--naranja{--fondo:var(--naranja);--texto:var(--marron);--acento:var(--marron);--suave:#4F331C;--linea:rgba(26,18,16,.34);--superficie:rgba(26,18,16,.07);--btn-fondo:var(--marron);--btn-texto:var(--crema);--resalte:rgba(26,18,16,.16)}
+.banda--naranja{--fondo:var(--naranja-palido);--texto:var(--marron);--acento:var(--naranja-oscuro);--suave:#4F331C;--linea:rgba(26,18,16,.34);--superficie:rgba(26,18,16,.07);--btn-fondo:var(--marron);--btn-texto:var(--crema);--resalte:rgba(244,150,62,.42)}
 .contenedor{max-width:var(--ancho);margin:0 auto}
 /* Tira de película entre capas */
 .tira{height:26px;background:var(--marron) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='26'%3E%3Crect x='9' y='7' width='12' height='12' rx='2.5' fill='%23F4963E' fill-opacity='.8'/%3E%3C/svg%3E") repeat-x center}
@@ -149,6 +152,13 @@ p{margin:0}
 .video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .video__error{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:18px;background:var(--marron);color:var(--crema)}
 .video__error .mano{font-size:2rem;color:var(--naranja-claro);line-height:1}
+/* Plan B: si un vídeo No carga, el recuadro negro se convierte en un aviso que crece lo que haga falta */
+.video__error p{margin:0;max-width:30em}
+.video.video--error{aspect-ratio:auto;height:auto;padding-top:0;background:var(--marron)}
+.video--error iframe{display:none}
+.video--error .video__error{position:static;padding:26px 18px;gap:10px}
+.video__planb{color:var(--suave);margin:10px 0 0;max-width:34em}
+.video--error + .boton + .video__planb{display:none}
 .video--pronto{background:var(--marron);display:flex;align-items:center;justify-content:center}
 .pronto{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--crema);padding:14px}
 .pronto svg{width:56px;height:56px;margin:0 0 6px}
@@ -193,6 +203,9 @@ p{margin:0}
 .banda .opcion--correcta{border-color:var(--marron)}
 .banda--marron .opcion--correcta{border-color:var(--naranja);box-shadow:0 0 0 2px var(--naranja)}
 .banda .campo::placeholder{color:#6B5A4A;opacity:1}
+/* En las capas claras, las tarjetas son casi blancas para que destaquen sobre el fondo */
+.banda--naranja .opcion,.banda--naranja .chip,.banda--naranja .campo{background:#FFFCF6}
+.banda--naranja .opcion[aria-pressed="true"],.banda--naranja .chip.activo{background:var(--btn-fondo)}
 .banda .campo:focus{border-color:var(--naranja);box-shadow:0 0 0 2px var(--naranja)}
 
 
@@ -876,12 +889,15 @@ p{margin:0}
   };
   var ESCENA_SUSTITUTA = ROCKY;
 
-  var PARADISO = {
-    id: "paradiso",
-    peli: "Cinema Paradiso",
-    alias: ["cinema paradiso", "nuovo cinema paradiso", "paradiso"],
-    meta: "1988, de Giuseppe Tornatore",
-    nombreEscena: "El final",
+  // ESCENA 3: E.T., el extraterrestre (sustituye a Cinema Paradiso, bloqueado en España y Venezuela)
+  var ET = {
+    id: "et",
+    peli: "E.T., el extraterrestre",
+    // "=" delante: tiene que coincidir entero (así "ET" No se confunde con otras pelis)
+    alias: ["extraterrestre", "e t el", "=e t", "=et"],
+    etiquetaBarra: "E.T.",
+    meta: "1982, de Steven Spielberg",
+    nombreEscena: "La despedida",
     spoiler: {
       titulo: "Ojo, que esto es el final de la peli.",
       texto: "Si No la has visto, mejor verla antes en tu plataforma. Es una pasada."
@@ -889,49 +905,51 @@ p{margin:0}
     gancho: "Si la has visto, seguro que este final te removió algo. Hoy vas a ver por qué.",
     ganchoMano: "pañuelos a mano",
     contexto: [
-      "Te sitúo: Salvatore vuelve a su pueblo tras 30 años, al entierro de Alfredo, el proyeccionista del cine de su infancia.",
-      "Alfredo le ha dejado un rollo de película."
+      "Te sitúo: E.T. se quedó atrapado en la Tierra cuando su nave tuvo que irse. Elliott, un niño, lo escondió en casa y se hicieron inseparables.",
+      "Ahora, por fin, su nave ha vuelto a buscarle."
     ],
-    clip: { id: "rrDG0rQCc28", fin: 86,
-      idioma: "El clip está en versión original, pero No te hace falta entender ni una palabra: todo está en la imagen y en la música." },
+    // El clip para en el 3:01 (después salen cosas del canal) y vuelve al principio
+    clip: { id: "75M1XXEZciU", fin: 181, volverAlInicio: true,
+      idioma: "El clip está en inglés, pero No te hace falta entender ni una palabra: todo está en la imagen y en la música." },
     preguntas: [
-      { tema: "El guion", texto: "¿Qué hay en ese rollo de película?",
-        opciones: ["Escenas de las pelis de Salvatore", "Lo mejor del cine italiano", "Los besos que el cura mandaba cortar cuando él era niño"], correcta: 2 },
-      { tema: "El montaje", texto: "¿De dónde salen esos besos?",
-        opciones: ["Son trozos de pelis clásicas de verdad", "Los rodó Tornatore imitando el cine antiguo", "Son de pelis que No llegaron a estrenarse"], correcta: 0 },
-      { tema: "El sonido", texto: "¿Alguien habla mientras pasan los besos?",
-        opciones: ["Sí, Salvatore piensa en voz alta", "Sí, se oye la voz de Alfredo", "No: solo hay música"], correcta: 2 },
-      { tema: "Lo que sientes", texto: "¿Cómo está Salvatore mientras mira los besos?",
-        opciones: ["Serio, sin inmutarse", "Sonriendo, con lágrimas en los ojos", "Riéndose a carcajadas"], correcta: 1 }
+      { tema: "El guion", texto: "Antes de irse, E.T. toca a Elliott con su dedo, que se ilumina. ¿Dónde le toca?",
+        opciones: ["En la mano", "En la frente", "En el pecho"], correcta: 1 },
+      { tema: "La cámara", texto: "En la última toma, ¿dónde está la cámara?",
+        opciones: ["Arriba, junto a la nave, mirando hacia abajo", "Pegada a la cara de Elliott", "Casi en el suelo, algo lejos de Elliott y de su perro"], correcta: 2 },
+      { tema: "La música", texto: "¿Qué hace la música mientras la nave se va?",
+        opciones: ["Se corta de golpe y queda el silencio", "Crece hasta llenarlo todo", "Se oye una canción con letra"], correcta: 1 },
+      { tema: "Lo que sientes", texto: "¿Cuántas palabras necesitan E.T. y Elliott para despedirse?",
+        opciones: ["Muchas: se lo explican todo", "Muy pocas: casi todo lo dice el abrazo", "Ninguna: se despiden de lejos"], correcta: 1 }
     ],
     capas: [
-      { titulo: "Lo que cuenta el guion", bien: "¡Exacto! Lo tenías.", mal: "Casi. Mira de dónde salen esos besos.",
-        bloques: ["Al principio de la peli, el cura ve cada peli antes que nadie. Con cada beso, toca una campanilla, y Alfredo lo corta.",
-                  "De niño, Salvatore quería esos trozos. Alfredo se los regaló, pero se quedaron en la cabina. Décadas después, por fin son suyos."],
+      { titulo: "Lo que cuenta el guion", bien: "¡Exacto! En la frente.", mal: "Fíjate otra vez: el dedo va a la frente.",
+        bloques: ["Ese dedo que brilla ya lo habías visto. Antes en la peli, E.T. le curó con él un corte en el dedo a Elliott.",
+                  "Ahora No cura una herida: le toca la frente y le dice «I'll be right here», «estaré aquí mismo». Se va… pero se queda dentro de él."],
         mano: "plantar y recoger" },
-      { titulo: "Lo que cuenta el montaje", bien: "¡Bien visto! Son de verdad.", mal: "Pues son de verdad. Mira esto.",
-        bloques: ["Son trozos de pelis clásicas de verdad: de Chaplin, de Rodolfo Valentino, de Errol Flynn… Más de 40 besos, uno tras otro.",
-                  "Y de vez en cuando, el montaje vuelve a Salvatore, sentado, mirando. Tú miras lo que él mira… y luego le miras a él."],
-        mano: "¡son pelis reales!" },
-      { titulo: "Lo que cuenta el sonido", bien: "Eso es: ni una palabra.", mal: "Escucha otra vez: aquí nadie dice nada.",
-        bloques: ["Ni una palabra: solo música. Fíjate en cómo dice todo lo que Salvatore No puede decir.",
-                  "Haz la prueba: vuelve a verlo sin sonido. ¿Sientes lo mismo? Así descubres cuánto pone la música."],
-        mano: "solo música" },
-      { titulo: "Lo que te hace sentir", bien: "Exacto: sonríe y llora a la vez.", mal: "Fíjate otra vez en su cara: sonríe… con lágrimas.",
-        bloques: ["Sonríe con lágrimas en los ojos. Y un dato de la peli: lo ve él solo, en Roma. Los besos que el pueblo No vio, hoy son solo para él.",
-                  "Muchos lo ven así: No mira besos. Mira su infancia, su pueblo… y a Alfredo, que se despide de él."],
-        mano: "sonrisa y lágrimas" }
+      { titulo: "Lo que cuenta la cámara", bien: "¡Bien visto! Casi en el suelo.", mal: "Mira otra vez la última toma: la cámara está casi en el suelo.",
+        bloques: ["Para rodar la peli, la cámara iba a unos 1,40 metros del suelo: más o menos, la altura de un niño. Ves el mundo como lo ve Elliott.",
+                  "Y en la última toma, la cámara se queda abajo y algo lejos, con Elliott y su perro. Tú también te quedas en la Tierra, mirando cómo se va."],
+        mano: "a la altura de un niño" },
+      { titulo: "Lo que cuenta la música", bien: "¡Eso es! Tienes buen oído.", mal: "Escúchalo otra vez: cuando se va la nave, la música crece.",
+        bloques: ["Fíjate: casi nadie habla. Cuando la nave se va, la música crece hasta llenarlo todo y dice lo que Elliott No puede decir.",
+                  "Un dato: Spielberg apagó la peli y dejó que John Williams grabara la música del final a su aire. Luego remontó el final para que encajara."],
+        mano: "primero la música" },
+      { titulo: "Lo que te hace sentir", bien: "Exacto: casi sin palabras.", mal: "Escúchalo otra vez: apenas se dicen nada.",
+        bloques: ["Casi No hablan: «Come» (ven), «Stay» (quédate), «Ouch» (¡ay!)… y poco más. El resto lo dicen el abrazo y las caras.",
+                  "Y está pensado: Spielberg rodó la peli casi en orden, para que al final los niños se despidieran de E.T. de verdad."],
+        mano: "pocas palabras, mucha emoción" }
     ],
     cierre: [
-      "Te confieso una cosa: con este final, No puedo describir la emoción que siento.",
-      "Para mí, Tornatore No te enseña solo besos: te enseña lo que es amar el cine.",
+      "Has visto una despedida casi sin palabras. Y lo has entendido todo.",
+      "Por cierto: la voz de E.T. es, sobre todo, de Pat Welsh, una señora mayor con la voz rasposa.",
+      "Las pelis que te marcan hacen lo mismo que E.T.: se van… pero se quedan contigo.",
       "Justo lo que nos une a todos los que estamos aquí."
     ],
     ejemplos: {
-      f1: "nostalgia y ternura",
-      f2: "Salvatore ve, solo, los besos que Alfredo le guardó",
-      f3: "dejó que la música hablara por él",
-      f4: "lo que nos dejan las personas que nos quieren"
+      f1: "ternura y un nudo en la garganta",
+      f2: "E.T. le toca la frente a Elliott antes de irse",
+      f3: "dejó la cámara baja y lejos, junto a Elliott, mientras la nave se iba",
+      f4: "lo que se queda contigo cuando alguien se va"
     }
   };
 
@@ -1068,7 +1086,7 @@ p{margin:0}
   var escena2 = CONFIG.escenaOscarLista ? ESCENA_OSCAR : ESCENA_SUSTITUTA;
   var ESCENAS = [TIBURON];
   if (escena2) ESCENAS.push(escena2);
-  ESCENAS.push(PARADISO);
+  ESCENAS.push(ET);
   var TOTAL = ESCENAS.length;
 
   document.querySelectorAll("[data-num-escenas]").forEach(function (el) { el.textContent = String(TOTAL); });
@@ -1107,12 +1125,18 @@ p{margin:0}
   function videoClipHtml(e, sufijo) {
     var c = e.clip;
     var src = "https://www.youtube-nocookie.com/embed/" + c.id + "?start=0&end=" + c.fin + "&rel=0&playsinline=1&enablejsapi=1&hl=es";
+    // Clips que, al llegar al final, vuelven al principio (para que No salgan otros vídeos del canal)
+    var volver = c.volverAlInicio ? ' data-volver data-video="' + c.id + '" data-fin="' + c.fin + '"' : "";
+    // Plan B: si el clip No se puede ver (por ejemplo, bloqueado en el país), se dice qué hacer
+    var seguir = sufijo === "-reto" ? "seguir con el reto" : "seguir con las preguntas";
+    var sigue = sufijo === "-reto" ? "sigue con el reto" : "sigue con las preguntas";
     return '<div class="video">' +
-        '<iframe data-clip id="yt-' + e.id + sufijo + '" src="' + src + '" title="' + e.peli + ": " + e.nombreEscena + ' (clip oficial)" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>' +
-        '<div class="video__error" hidden><p class="mano">Vaya…</p><p>Este clip No se puede ver aquí dentro. Ábrelo en YouTube con el botón de abajo 👇</p></div>' +
+        '<iframe data-clip id="yt-' + e.id + sufijo + '"' + volver + ' src="' + src + '" title="' + e.peli + ": " + e.nombreEscena + ' (clip oficial)" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>' +
+        '<div class="video__error" hidden><p class="mano">Vaya…</p><p>Este vídeo No está disponible aquí. Puede que No se pueda ver en tu país.</p><p>Puedes ver la escena en tu plataforma y ' + seguir + '.</p></div>' +
         '<div class="video__sinred"><p class="mano">Sin conexión</p><p>Los clips necesitan internet. En cuanto vuelvas a tener conexión, aparecerán aquí.</p></div>' +
       "</div>" +
-      '<a class="boton boton--contorno boton--ancho" data-abrir-yt href="https://www.youtube.com/watch?v=' + c.id + '" target="_blank" rel="noopener">¿No se ve? Ábrelo en YouTube</a>';
+      '<a class="boton boton--contorno boton--ancho" data-abrir-yt href="https://www.youtube.com/watch?v=' + c.id + '" target="_blank" rel="noopener">¿No se ve? Ábrelo en YouTube</a>' +
+      '<p class="video__planb">¿Tampoco se ve en YouTube? Mira la escena en tu plataforma y ' + sigue + '.</p>';
   }
 
   function clipHtml(e) {
@@ -1384,6 +1408,7 @@ p{margin:0}
      ========================================================= */
   function errorClip(ifr) {
     var caja = ifr.closest(".video");
+    caja.classList.add("video--error");
     ifr.hidden = true;
     var aviso = caja.querySelector(".video__error");
     if (aviso) aviso.hidden = false;
@@ -1396,6 +1421,15 @@ p{margin:0}
     var listo = escena && escena.querySelector("[data-clip-listo]");
     if (listo) listo.hidden = false;
   }
+  // Al llegar al final marcado, el clip vuelve al principio (como recién abierto), sin vídeos del canal
+  function volverAlInicio(reproductor, ifr) {
+    var fin = Number(ifr.getAttribute("data-fin")) || undefined;
+    try {
+      reproductor.cueVideoById({ videoId: ifr.getAttribute("data-video"), startSeconds: 0, endSeconds: fin });
+    } catch (err) {
+      try { reproductor.seekTo(0, true); reproductor.pauseVideo(); } catch (err2) { /* Si falla, el clip se queda parado al final */ }
+    }
+  }
   function conectarClip(ifr) {
     if (!ifr || ifr.getAttribute("data-conectado") || !window.YT || !window.YT.Player) return;
     ifr.setAttribute("data-conectado", "1");
@@ -1403,7 +1437,11 @@ p{margin:0}
       new window.YT.Player(ifr, {
         events: {
           onError: function () { errorClip(ifr); },
-          onStateChange: function (ev) { if (ev.data === 0) clipTerminado(ifr); }
+          onStateChange: function (ev) {
+            if (ev.data !== 0) return;
+            clipTerminado(ifr);
+            if (ifr.hasAttribute("data-volver")) volverAlInicio(ev.target, ifr);
+          }
         }
       });
     } catch (err) { /* Si falla, el botón de YouTube sigue ahí */ }
@@ -1533,8 +1571,8 @@ p{margin:0}
   /* =========================================================
      9. Parte 3: la crítica
      ========================================================= */
-  // Botones con las pelis del regalo: Tiburón, Cinema Paradiso y la escena 2
-  var ORDEN_CHIPS = [TIBURON, PARADISO];
+  // Botones con las pelis del regalo: Tiburón, E.T. y la escena 2
+  var ORDEN_CHIPS = [TIBURON, ET];
   if (escena2) ORDEN_CHIPS.push(escena2);
   var chipsPeli = document.getElementById("chips-peli");
   ORDEN_CHIPS.forEach(function (e) {
@@ -1602,7 +1640,8 @@ p{margin:0}
       if (n === normalizar(quitarEtiquetas(e.peli))) return e.ejemplos || EJEMPLOS_GENERALES;
       var alias = e.alias || [];
       for (var k = 0; k < alias.length; k++) {
-        if (n.indexOf(alias[k]) !== -1) return e.ejemplos || EJEMPLOS_GENERALES;
+        var exacto = alias[k].charAt(0) === "=";
+        if (exacto ? n === alias[k].slice(1) : n.indexOf(alias[k]) !== -1) return e.ejemplos || EJEMPLOS_GENERALES;
       }
     }
     return EJEMPLOS_GENERALES;
@@ -1867,7 +1906,7 @@ p{margin:0}
      ========================================================= */
   // Versión de la app. Cámbiala (1.1, 1.2…) cuando subas algo importante:
   // así el móvil renueva también la copia guardada para cuando No hay internet.
-  var APP_VERSION = "1.2";
+  var APP_VERSION = "1.3";
   document.getElementById("version-app").textContent = APP_VERSION;
 
   var UA = navigator.userAgent || "";
